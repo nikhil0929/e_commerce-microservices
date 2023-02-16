@@ -45,7 +45,7 @@ func ConnectDatabase() *gorm.DB {
 
 func loadConfig() map[string]string {
 	config := make(map[string]string)
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./products/.env")
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
