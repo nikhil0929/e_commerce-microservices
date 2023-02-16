@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -70,6 +71,7 @@ func (a *api) UpdateProduct(c *gin.Context) {
 		return
 	}
 	// TODO: Put this in a separate function
+	log.Println(queryParams)
 	isValid := a.product_service.UpdateProduct(queryParams, newFields)
 	if isValid {
 		c.String(http.StatusOK, "UpdateProduct: SUCCESS")

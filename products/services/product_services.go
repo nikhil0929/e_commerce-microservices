@@ -38,10 +38,11 @@ func (s *Service) CreateProduct(prod models.Product) bool {
 
 func (s *Service) UpdateProduct(conditions map[string][]string, newFields models.Product) bool {
 	// make sure product is valid
-	isValid := utils.CheckProductValidity(newFields)
-	if !isValid {
-		return false
-	}
+	// isValid := utils.CheckProductValidity(newFields)
+	// if !isValid {
+	// 	log.Println("Invalid Product")
+	// 	return false
+	// }
 	return s.productDao.Update(conditions, newFields)
 }
 

@@ -5,6 +5,7 @@ package utils
 import (
 	Models "e_commerce-microservices/products/models"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -48,10 +49,21 @@ func QueryParamsToMap(queryParams string) map[string]interface{} {
 
 func CheckProductValidity(product Models.Product) bool {
 	if product.Price < 0 || product.Inventory < 0 || product.Name == "" || product.Price == 0 || product.Inventory == 0 {
+		log.Println("Invalid Product 2")
 		return false
 	}
 	return true
 }
+
+// func IterateFields(product Models.Product) bool {
+//     v := reflect.ValueOf(product)
+//     typeOfS := v.Type()
+
+//     for i := 0; i< v.NumField(); i++ {
+//         fmt.Printf("Field: %s\tValue: %v\n", typeOfS.Field(i).Name, v.Field(i).Interface())
+//     }
+// 	return true
+// }
 
 func CreateConditionClause(query *gorm.DB, queryParams map[string][]string) *gorm.DB {
 	for key, value := range queryParams {
