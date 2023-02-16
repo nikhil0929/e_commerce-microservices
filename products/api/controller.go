@@ -6,18 +6,23 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"e_commerce-microservices/products/models"
-	"e_commerce-microservices/products/services"
 )
 
 type Service interface {
-	GetProducts()
-	CreateProduct()
-	UpdateProduct()
-	DeleteProduct()
+	GetProducts(map[string][]string) ([]models.Product, bool)
+	CreateProduct(models.Product) bool
+	UpdateProduct(map[string][]string, models.Product) bool
+	DeleteProduct(map[string][]string) bool
 }
 
 type api struct {
-	product_service *services.Service
+	product_service Service
+}
+
+func NewProductController(product_service Service) *api {
+	return &api{
+		product_service: product_service,
+	}
 }
 
 // Public level commands
@@ -27,7 +32,11 @@ type api struct {
 // e.g /products?price=100.99&category=applicances
 func (a *api) GetProducts(c *gin.Context) {
 	queryParams := c.Request.URL.Query()
-	result := a.product_service.GetProducts(queryParams)
+	result, isValid := a.product_service.GetProducts(queryParams)
+	if !isValid {
+		c.String(http.StatusBadRequest, "GetProducts: Unable to get products from DB")
+		return
+	}
 	c.JSON(http.StatusOK, result)
 }
 
@@ -42,7 +51,7 @@ func (a *api) CreateProduct(c *gin.Context) {
 		return
 	}
 	// TODO: Put this in a separate function
-	isValid := a.services.CreateProduct(newProduct)
+	isValid := a.product_service.CreateProduct(newProduct)
 	if isValid {
 		c.String(http.StatusOK, "CreateProduct: SUCCESS")
 	} else {
@@ -61,7 +70,7 @@ func (a *api) UpdateProduct(c *gin.Context) {
 		return
 	}
 	// TODO: Put this in a separate function
-	isValid := a.services.UpdateProduct(queryParams, newFields)
+	isValid := a.product_service.UpdateProduct(queryParams, newFields)
 	if isValid {
 		c.String(http.StatusOK, "UpdateProduct: SUCCESS")
 	} else {
@@ -72,6 +81,10 @@ func (a *api) UpdateProduct(c *gin.Context) {
 // Delete Product in DB with specified conditions in the query parameters (in the URL)
 func (a *api) DeleteProduct(c *gin.Context) {
 	queryParams := c.Request.URL.Query()
-	a.service.DeleteProduct(queryParams)
-	c.String(http.StatusOK, "DeleteProduct")
+	isValid := a.product_service.DeleteProduct(queryParams)
+	if isValid {
+		c.String(http.StatusOK, "DeleteProduct: SUCCESS")
+	} else {
+		c.String(http.StatusBadRequest, "DeleteProduct: Invalid Product fields specified")
+	}
 }

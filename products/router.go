@@ -4,26 +4,44 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func enableProductRoutes(router *gin.Engine) {
-
-	// Product routes
-	router.GET("/products", Controller.GetProducts)
-
-	// all routes here are for admin user group only
-	router.POST("/products", Controller.CreateProduct)
-	router.PUT("/products", Controller.UpdateProduct)
-	router.DELETE("/products", Controller.DeleteProduct)
+type Controller interface {
+	GetProducts(c *gin.Context)
+	CreateProduct(c *gin.Context)
+	UpdateProduct(c *gin.Context)
+	DeleteProduct(c *gin.Context)
 }
 
-func NewProductsRouter() *gin.Engine {
+
+type ProductService struct {
+	api Controller
+}
+
+func NewProductService(api Controller) *ProductService {
+	return &ProductService{
+		api: api,
+	}
+}
+
+func enableProductRoutes(router *gin.Engine, ps *ProductService) {
+
+	// Product routes
+	router.GET("/products", ps.api.GetProducts)
+
+	// all routes here are for admin user group only
+	router.POST("/products", ps.api.CreateProduct)
+	router.PUT("/products", ps.api.UpdateProduct)
+	router.DELETE("/products", ps.api.DeleteProduct)
+}
+
+func (ps *ProductService) NewProductsRouter() *gin.Engine {
 	router := gin.Default()
 
-	enableProductRoutes(router)
+	enableProductRoutes(router, ps)
 	
 	return router
 }
 
-func start() {
-	router := NewProductsRouter()
+func (ps *ProductService) start() {
+	router := ps.NewProductsRouter()
 	router.Run()
 }
