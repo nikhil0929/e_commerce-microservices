@@ -13,30 +13,49 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var Host string
-var Db_username string
-var Db_password string
-var Port int
-var Db_name string
+type Env interface {
+	loadConfig()
+}
 
-var JWT_secret_key string
-var Cookie_secret_key string
-var Stripe_secret_key string
+type DBConfig struct {
+	host string
+	db_username string
+	db_password string
+	port int
+	db_name string
+}
 
-func LoadEnv() {
+type JWTConfig struct {
+	jwt_secret_key string
+	cookie_secret_key string
+}
+
+type StripeConfig struct {
+	stripe_secret_key string
+}
+
+
+
+func (db_config *DBConfig) loadConfig() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
 
-	Host = os.Getenv("HOST")
-	Db_username = os.Getenv("DB_USERNAME")
-	Db_password = os.Getenv("DB_PASSWORD")
-	Port, _ = strconv.Atoi(os.Getenv("PORT"))
-	Db_name = os.Getenv("DB_NAME")
-
-	JWT_secret_key = os.Getenv("JWT_SECRET_KEY")
-	Cookie_secret_key = os.Getenv("COOKIE_SECRET_KEY")
-	Stripe_secret_key = os.Getenv("STRIPE_SECRET_KEY")
+	db_config.host = os.Getenv("HOST")
+	db_config.db_username = os.Getenv("DB_USERNAME")
+	db_config.db_password = os.Getenv("DB_PASSWORD")
+	db_config.port, _ = strconv.Atoi(os.Getenv("PORT"))
+	db_config.db_name = os.Getenv("DB_NAME")
 
 }
+
+func (jwt_config *JWTConfig) loadConfig() {
+	jwt_config.jwt_secret_key = os.Getenv("JWT_SECRET_KEY")
+	jwt_config.cookie_secret_key = os.Getenv("COOKIE_SECRET_KEY")
+}
+
+func (stripe_config *StripeConfig) loadConfig() {
+	stripe_config.stripe_secret_key = os.Getenv("STRIPE_SECRET_KEY")
+}
+

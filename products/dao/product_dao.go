@@ -1,4 +1,4 @@
-package Products
+package dao
 
 import (
 	"e_commerce-microservices/DB/postgres"

@@ -1,6 +1,8 @@
 package products
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,17 +14,17 @@ type Controller interface {
 }
 
 
-type ProductService struct {
+type Product_Mircoservice struct {
 	api Controller
 }
 
-func NewProductService(api Controller) *ProductService {
-	return &ProductService{
+func NewProductService(api Controller) *Product_Mircoservice {
+	return &Product_Mircoservice{
 		api: api,
 	}
 }
 
-func enableProductRoutes(router *gin.Engine, ps *ProductService) {
+func enableProductRoutes(router *gin.Engine, ps *Product_Mircoservice) {
 
 	// Product routes
 	router.GET("/products", ps.api.GetProducts)
@@ -33,7 +35,7 @@ func enableProductRoutes(router *gin.Engine, ps *ProductService) {
 	router.DELETE("/products", ps.api.DeleteProduct)
 }
 
-func (ps *ProductService) NewProductsRouter() *gin.Engine {
+func (ps *Product_Mircoservice) newProductsRouter() *gin.Engine {
 	router := gin.Default()
 
 	enableProductRoutes(router, ps)
@@ -41,7 +43,8 @@ func (ps *ProductService) NewProductsRouter() *gin.Engine {
 	return router
 }
 
-func (ps *ProductService) start() {
-	router := ps.NewProductsRouter()
-	router.Run()
+func (ps *Product_Mircoservice) Start() {
+	router := ps.newProductsRouter()
+	log.Println("Starting Product Microservice on port 4001")
+	router.Run(":4001")
 }

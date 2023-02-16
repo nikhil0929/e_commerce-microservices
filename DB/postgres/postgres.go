@@ -7,10 +7,11 @@ package postgres
 import (
 	"fmt"
 	"log"
+	"os"
 
-	"e_commerce-microservices/config"
 	"e_commerce-microservices/utils" // THIS IS THE CORRECT WAY TO IMPORT PACKAGES
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,7 +21,7 @@ type DB struct {
 	connection *gorm.DB
 }
 
-func newDBConnection_postgres() *DB {
+func NewDBConnection_postgres() *DB {
 	return &DB{
 		connection: ConnectDatabase(),
 	}
@@ -30,13 +31,33 @@ func newDBConnection_postgres() *DB {
 // Returns DB object
 func ConnectDatabase() *gorm.DB {
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", config.Host, config.Db_username, config.Db_password, config.Db_name, config.Port)
+	config := loadConfig()
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", config["Host"], config["Db_username"], config["Db_password"], config["Db_name"], config["Port"])
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Connected to database")
 	return db
+}
+
+
+func loadConfig() map[string]string {
+	config := make(map[string]string)
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
+
+	config["Host"] = os.Getenv("HOST")
+	config["Db_username"] = os.Getenv("DB_USERNAME")
+	config["Db_password"] = os.Getenv("DB_PASSWORD")
+	config["Port"] = os.Getenv("PORT")
+	config["Db_name"] = os.Getenv("DB_NAME")
+
+	return config
+
 }
 
 // Creates new record instance in the database from the given model object

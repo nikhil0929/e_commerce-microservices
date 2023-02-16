@@ -7,7 +7,7 @@ import (
 
 type DAO interface {
 	Query(map[string][]string) ([]models.Product, bool)
-	Create(*models.Product) bool
+	Create(models.Product) bool
 	Update(map[string][]string, models.Product) bool
 	Delete(map[string][]string) bool
 }
@@ -27,9 +27,9 @@ func (s *Service) GetProducts(queryParams map[string][]string) ([]models.Product
 	return prods, err
 }
 
-func (s *Service) CreateProduct(prod *models.Product) bool {
+func (s *Service) CreateProduct(prod models.Product) bool {
 	// make sure product is valid
-	isValid := utils.CheckProductValidity(*prod)
+	isValid := utils.CheckProductValidity(prod)
 	if !isValid {
 		return false
 	}
