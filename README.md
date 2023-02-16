@@ -19,6 +19,7 @@ BTW I have not tested this microservice yet. Im going to bed now im tired ill do
   - cart
   - orders
   - users
+- Kafka Event Bus(so everything can run more asynchronusly)
 - Dockerize microservices
 - Kubernetes???
 - Sensu monitoring for each service
