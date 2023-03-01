@@ -1,13 +1,12 @@
-# syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine
+FROM golang:1.20
 
 WORKDIR /app
 
-COPY */ ./
+COPY . .
 
-RUN go build -o /ecm-ms
+RUN go build -o /products
 
 EXPOSE 4001
 
-CMD ["/ecm-ms"]
+CMD [ "/products" ]
