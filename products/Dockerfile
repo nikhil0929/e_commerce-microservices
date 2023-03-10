@@ -1,12 +1,13 @@
+# FROM golang:1.20
 
-FROM golang:1.20
+# WORKDIR /app
 
-WORKDIR /app
+# COPY go.mod ./
+# COPY go.sum ./
+# RUN go mod download
 
-COPY . .
+# RUN go build -o /products
 
-RUN go build -o /products
+# EXPOSE 4001
 
-EXPOSE 4001
-
-CMD [ "/products" ]
+# CMD [ "/products" ]
