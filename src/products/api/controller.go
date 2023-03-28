@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"e_commerce-microservices/products/models"
+	"e_commerce-microservices/src/products/models"
 )
 
 type Service interface {

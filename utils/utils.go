@@ -3,7 +3,7 @@
 package utils
 
 import (
-	Models "e_commerce-microservices/products/models"
+	Models "e_commerce-microservices/src/products/models"
 	"fmt"
 	"log"
 	"reflect"

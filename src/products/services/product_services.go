@@ -1,7 +1,7 @@
 package services
 
 import (
-	"e_commerce-microservices/products/models"
+	"e_commerce-microservices/src/products/models"
 	"e_commerce-microservices/utils"
 )
 

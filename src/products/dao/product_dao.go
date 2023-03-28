@@ -2,7 +2,7 @@ package dao
 
 import (
 	"e_commerce-microservices/DB/postgres"
-	"e_commerce-microservices/products/models"
+	"e_commerce-microservices/src/products/models"
 )
 
 type ProductDao struct{

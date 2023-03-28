@@ -2,10 +2,10 @@ package main
 
 import (
 	"e_commerce-microservices/DB/postgres"
-	"e_commerce-microservices/products/api"
-	"e_commerce-microservices/products/dao"
-	"e_commerce-microservices/products/router"
-	"e_commerce-microservices/products/services"
+	"e_commerce-microservices/src/products/api"
+	"e_commerce-microservices/src/products/dao"
+	"e_commerce-microservices/src/products/router"
+	"e_commerce-microservices/src/products/services"
 	"log"
 )
 
