@@ -25,6 +25,16 @@ func MigrateAll(db *gorm.DB) {
 	}
 }
 
+func MigrateModel(db *gorm.DB, model interface{}) {
+	log.Println("Running Migration on: ", reflect.TypeOf(model))
+	err := db.Debug().AutoMigrate(
+		&model,
+	)
+	if err != nil {
+		fmt.Println("Sorry couldn't migrate'...")
+	}
+}
+
 func CreateLogMessage(action string, object interface{}) string {
 	return fmt.Sprintf("%s %s", action, reflect.TypeOf(object))
 }

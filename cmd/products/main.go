@@ -4,6 +4,7 @@ import (
 	"e_commerce-microservices/DB/postgres"
 	"e_commerce-microservices/src/products/api"
 	"e_commerce-microservices/src/products/dao"
+	"e_commerce-microservices/src/products/models"
 	"e_commerce-microservices/src/products/router"
 	"e_commerce-microservices/src/products/services"
 	"log"
@@ -11,8 +12,13 @@ import (
 
 func main() {
 
-	// Declare product service
+	// Declare Postgres instance
 	product_psql := postgres.NewDBConnection_postgres()
+
+	// Migrate products model to a postgres table
+	product_psql.RunMigrations(models.Product{})
+
+	// Declare product service
 	product_dao := dao.NewProductDao(product_psql)
 	product_services := services.NewProductService(product_dao)
 	product_controller := api.NewProductController(product_services)

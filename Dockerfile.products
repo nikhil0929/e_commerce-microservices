@@ -11,9 +11,10 @@ WORKDIR /app
 # COPY go.sum ./
 # RUN go mod download
 
-# COPY ./products /app/products
+# COPY ./src/products /app/src/products
 # COPY ./DB /app/DB
 # COPY ./utils /app/utils
+# COPY ./cmd/products /app/cmd/products
 
 COPY . .
 

@@ -45,7 +45,7 @@ func ConnectDatabase() *gorm.DB {
 
 func loadConfig() map[string]string {
 	config := make(map[string]string)
-	err := godotenv.Load("./products/.env")
+	err := godotenv.Load("./src/products/.env")
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
@@ -58,6 +58,10 @@ func loadConfig() map[string]string {
 
 	return config
 
+}
+
+func (pdb *DB) RunMigrations(model interface{}) {
+	utils.MigrateModel(pdb.connection, model)
 }
 
 // Creates new record instance in the database from the given model object
