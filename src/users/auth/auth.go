@@ -1,16 +1,19 @@
-package Authenticator
+package auth
 
 import (
-	"e_market/src/Config"
-	"e_market/src/Models"
+	"e_commerce-microservices/src/users/models"
+	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"log"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
-var jwtKey = []byte(Config.JWT_secret_key)
+
+var jwtKey = []byte(loadConfig())
 
 type JWTClaim struct {
 	Username string `json:"username"`
@@ -19,7 +22,18 @@ type JWTClaim struct {
 	jwt.StandardClaims
 }
 
-func GenerateJWT(user Models.User) (string, bool) {
+// Load the JWT secret key from the .env file
+func loadConfig() string {
+	err := godotenv.Load("./src/users/.env")
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
+
+	return os.Getenv("JWT_SECRET_KEY")
+}
+
+// Generate a new JWT token
+func GenerateJWT(user models.User) (string, bool) {
 	expirationTime := time.Now().Add(time.Minute * 30)
 
 	claims := &JWTClaim{

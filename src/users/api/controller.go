@@ -5,28 +5,27 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"e_commerce-microservices/src/users/auth"
 	"e_commerce-microservices/src/users/models"
 )
 
 type Service interface {
-	GetProducts(map[string][]string) ([]models.User, bool)
-	CreateProduct(models.User) bool
-	UpdateProduct(map[string][]string, models.User) bool
-	DeleteProduct(map[string][]string) bool
-
-	UserSignUp()
-	UserSignIn()
-	GetUserProfile()
-	Logout()
+	GetUserProfile(string) (models.User, bool)
+	GetUsers(queryParams map[string][]string) ([]models.User, bool)
+	CreateUser(User models.User)
+	ValidateUserCredentials(user models.User) (models.User, bool)
+	CheckUserExists(user models.User) bool
+	CheckFormValidity(user models.User) bool
+	CheckLoginFormValidity(user models.User) bool
 }
 
 type api struct {
-	product_service Service
+	user_service Service
 }
 
-func NewProductController(product_service Service) *api {
+func NewUserController(user_service Service) *api {
 	return &api{
-		product_service: product_service,
+		user_service: user_service,
 	}
 }
 
@@ -40,19 +39,19 @@ func NewProductController(product_service Service) *api {
 		- Create user
 		- Return success message to client
 */
-func UserSignUp(c *gin.Context) {
+func (a *api) UserSignUp(c *gin.Context) {
 	var user models.User
 
 	if err := c.BindJSON(&user); err != nil { // Bind client form data to user struct
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if Services.CheckFormValidity(user) { // Check form validity and has required fields
-		if Services.CheckUserExists(user) { // Check if user already exists
+	if a.user_service.CheckFormValidity(user) { // Check form validity and has required fields
+		if a.user_service.CheckUserExists(user) { // Check if user already exists
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 			return
 		}
-		Services.CreateUser(user) // Create user in DB
+		a.user_service.CreateUser(user) // Create user in DB
 		c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user data"})
@@ -68,7 +67,7 @@ func UserSignUp(c *gin.Context) {
 		- Generate JWT token
 		- Return token to client
 */
-func UserSignIn(c *gin.Context) {
+func (a *api) UserSignIn(c *gin.Context) {
 	var user models.User
 	// Bind client form data to user struct
 	if err := c.BindJSON(&user); err != nil {
@@ -76,10 +75,10 @@ func UserSignIn(c *gin.Context) {
 		return
 	}
 	// MAYBE CLEAN UP THIS FUNCTION IT IS REALLY UGLY (DO IT ON ALL ENDPOINTS)
-	if Services.CheckLoginFormValidity(user) { // Check form validity and has required fields
-		dbUser, isValid := Services.ValidateUserCredentials(user) // Validate user credentials
+	if a.user_service.CheckLoginFormValidity(user) { // Check form validity and has required fields
+		dbUser, isValid := a.user_service.ValidateUserCredentials(user) // Validate user credentials
 		if isValid {
-			token, isSuccess := Authenticator.GenerateJWT(dbUser) // Generate JWT token with required claims
+			token, isSuccess := auth.GenerateJWT(dbUser) // Generate JWT token with required claims
 			if !isSuccess {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to generate token"})
 				return
@@ -101,14 +100,18 @@ func UserSignIn(c *gin.Context) {
 		- If token is valid, parse claims
 		- Return user profile to client
 */
-func GetUserProfile(c *gin.Context) {
+func (a *api) GetUserProfile(c *gin.Context) {
 	// claims := c.MustGet("claims").(map[string]interface{})
 	email := c.GetHeader("email")
-	user := Services.GetUserProfile(email)
+	user, isValid := a.user_service.GetUserProfile(email)
+	if !isValid {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
+		return
+	}
 	c.JSON(http.StatusOK, user)
 }
 
 // TODO: NEED TO IMPLEMENT
-func Logout(c *gin.Context) {
+func (a *api) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Logout successfully"})
 }

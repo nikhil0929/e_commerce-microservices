@@ -2,15 +2,16 @@ package services
 
 import (
 	"e_commerce-microservices/src/users/models"
+	"e_commerce-microservices/utils"
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type DAO interface {
-	Query(map[string][]string) ([]models.Product, bool)
-	Create(models.Product) bool
-	Update(map[string][]string, models.Product) bool
+	Query(map[string][]string) ([]models.User, bool)
+	Create(models.User) bool
+	Update(map[string][]string, models.User) bool
 	Delete(map[string][]string) bool
 }
 
@@ -25,33 +26,33 @@ func NewUserService(userDao DAO) *Service {
 }
 
 
-func GetUserProfile(email string) models.User {
+func (s *Service) GetUserProfile(email string) (models.User, bool) {
 	conditions := map[string][]string{
 		"email": {email},
 	}
 	// Get User details from the database
-	dbUser := GetUsers(conditions)
-	return dbUser[0]
+	dbUser, err := s.GetUsers(conditions)
+	return dbUser[0], err
 }
 
-func GetUsers(queryParams map[string][]string) []models.User {
-	var RecievedUsers []models.User
-	RecievedUsers = DB.QueryRecordWithMapConditions(&models.User{}, RecievedUsers, queryParams).([]models.User)
-	return RecievedUsers
+func (s *Service) GetUsers(queryParams map[string][]string) ([]models.User, bool) {
+	users, err := s.userDao.Query(queryParams)
+	return users, err
 }
 
-func CreateUser(User models.User) {
-	User.Password = Utils.GenerateHashPassword(User.Password)
-	DB.CreateRecord(&User)
+// You shouldnt be able to create a user if the email already exists in the database
+func (s *Service) CreateUser(User models.User) {
+	User.Password = utils.GenerateHashPassword(User.Password)
+	s.userDao.Create(User)
 }
 
 // HELPER FUNCTIONS \\
 
-func ValidateUserCredentials(user models.User) (models.User, bool) {
+func (s *Service) ValidateUserCredentials(user models.User) (models.User, bool) {
 	conditions := map[string][]string{
 		"email": {user.Email},
 	}
-	dbUser := GetUsers(conditions)
+	dbUser, _:= s.GetUsers(conditions)
 	err := bcrypt.CompareHashAndPassword([]byte(dbUser[0].Password), []byte(user.Password))
 	if err != nil {
 		return models.User{}, false
@@ -59,27 +60,27 @@ func ValidateUserCredentials(user models.User) (models.User, bool) {
 	return dbUser[0], true
 }
 
-func CheckUserExists(user models.User) bool {
+func (s *Service) CheckUserExists(user models.User) bool {
 	conditions := map[string][]string{
 		"email": {user.Email},
 	}
 	fmt.Println(conditions)
 	// Check if the user email exists in the database
-	dbUser := GetUsers(conditions)
+	dbUser, _ := s.GetUsers(conditions)
 	if len(dbUser) == 0 {
 		return false
 	}
 	return true
 }
 
-func CheckFormValidity(user models.User) bool {
+func (s *Service) CheckFormValidity(user models.User) bool {
 	if user.Email == "" || user.Password == "" || user.Name == "" || user.Username == "" {
 		return false
 	}
 	return true
 }
 
-func CheckLoginFormValidity(user models.User) bool {
+func (s *Service) CheckLoginFormValidity(user models.User) bool {
 	if user.Email == "" || user.Password == "" {
 		return false
 	}

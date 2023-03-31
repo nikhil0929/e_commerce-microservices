@@ -1,12 +1,9 @@
-package Middleware
+package middleware
 
 import (
-	"e_market/src/Authenticator"
-	"e_market/src/Models"
-	"log"
+	"e_commerce-microservices/src/users/auth"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +18,7 @@ func IsAuthorized(ctx *gin.Context) {
 	}
 
 	// validate token
-	claims, isValid := Authenticator.ValidateJWT(sgToken[0])
+	claims, isValid := auth.ValidateJWT(sgToken[0])
 	if !isValid {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		ctx.Abort()
@@ -33,21 +30,23 @@ func IsAuthorized(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func ParseSession(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	var userCart Models.Cart
-	val := session.Get("cart")
-	if val == nil {
-		log.Println("Created new cart")
-		userCart = Models.Cart{}
-	} else {
-		log.Println("Found existing cart")
-		userCart = val.(Models.Cart)
-	}
-	session.Set("cart", userCart)
-	session.Save()
-	ctx.Next()
-}
+// I NEED TO PUT THE 'ParseSession' MIDDLEWARE IN CART MICROSERVICE
+
+// func ParseSession(ctx *gin.Context) {
+// 	session := sessions.Default(ctx)
+// 	var userCart models.Cart
+// 	val := session.Get("cart")
+// 	if val == nil {
+// 		log.Println("Created new cart")
+// 		userCart = models.Cart{}
+// 	} else {
+// 		log.Println("Found existing cart")
+// 		userCart = val.(Models.Cart)
+// 	}
+// 	session.Set("cart", userCart)
+// 	session.Save()
+// 	ctx.Next()
+// }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

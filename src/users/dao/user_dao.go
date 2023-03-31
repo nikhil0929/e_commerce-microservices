@@ -2,38 +2,38 @@ package dao
 
 import (
 	"e_commerce-microservices/DB/postgres"
-	"e_commerce-microservices/src/products/models"
+	"e_commerce-microservices/src/users/models"
 )
 
-type ProductDao struct{
+type UserDao struct{
 	connection *postgres.DB
 }
 
-func NewProductDao(connection *postgres.DB) *ProductDao {
-	return &ProductDao{
+func NewUserDao(connection *postgres.DB) *UserDao {
+	return &UserDao{
 		connection: connection,
 	}
 }
 
-// Query returns all products in the DB with specified query parameters
-func (pd *ProductDao) Query(queryParams map[string][]string) ([]models.Product, bool) {
-	var RecievedProducts []models.Product
-	rp, err := pd.connection.QueryRecordWithMapConditions(&models.Product{}, RecievedProducts, queryParams)
-	RecievedProducts = rp.([]models.Product)
-	return RecievedProducts, err
+// Query returns all users in the DB with specified query parameters
+func (us *UserDao) Query(queryParams map[string][]string) ([]models.User, bool) {
+	var RecievedUsers []models.User
+	rp, err := us.connection.QueryRecordWithMapConditions(&models.User{}, RecievedUsers, queryParams)
+	RecievedUsers = rp.([]models.User)
+	return RecievedUsers, err
 }
 
-// Create creates a product in the DB with specified query parameters and new fields
-func (pd *ProductDao) Create(newFields models.Product) bool {
-	return pd.connection.CreateRecord(&newFields)
+// Create creates a new user in the DB with specified query parameters and new fields
+func (us *UserDao) Create(newFields models.User) bool {
+	return us.connection.CreateRecord(&newFields)
 }
 
-// Update updates a product in the DB with specified query parameters and new fields
-func (pd *ProductDao) Update(conditions map[string][]string, newFields models.Product) bool {
-	return pd.connection.UpdateRecord(models.Product{}, conditions, newFields)
+// Update updates a user in the DB with specified query parameters and new fields
+func (us *UserDao) Update(conditions map[string][]string, newFields models.User) bool {
+	return us.connection.UpdateRecord(models.User{}, conditions, newFields)
 }
 
-// DeleteProduct deletes a product in the DB with specified query parameters
-func (pd *ProductDao) Delete(conditions map[string][]string) bool {
-	return pd.connection.DeleteRecord(models.Product{}, conditions)
+// DeleteProduct deletes a user in the DB with specified query parameters
+func (us *UserDao) Delete(conditions map[string][]string) bool {
+	return us.connection.DeleteRecord(models.User{}, conditions)
 }
