@@ -7,7 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func IsAuthorized(ctx *gin.Context) {
+type UserMiddleware struct{}
+
+func NewUserMiddleware() *UserMiddleware {
+	return &UserMiddleware{}
+}
+
+func (mw *UserMiddleware) IsAuthorized(ctx *gin.Context) {
 
 	// check if token is present in header
 	sgToken := ctx.Request.Header["Token"]
@@ -48,7 +54,7 @@ func IsAuthorized(ctx *gin.Context) {
 // 	ctx.Next()
 // }
 
-func CORSMiddleware() gin.HandlerFunc {
+func (mw *UserMiddleware) CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
