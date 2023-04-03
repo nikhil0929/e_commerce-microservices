@@ -2,16 +2,6 @@
 
 Rebuilding [e_market backend](https://github.com/nikhil0929/e_market) with microservice architecture
 
-## How to run Products Microservice
-
-#### (The only microservice I have implemented thus far)
-
-```
-$ go run main.go
-```
-
-This should spin up the products microservice on localhost:4001
-
 ## Docker Products
 
 #### Build Products image from dockerfile
