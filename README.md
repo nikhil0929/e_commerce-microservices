@@ -12,13 +12,37 @@ $ go run main.go
 
 This should spin up the products microservice on localhost:4001
 
-### Build Products image from dockerfile
+## Docker Products
+
+#### Build Products image from dockerfile
 
 ```
-docker build -t products_ms -f Dockerfile.products .
+docker build -t products_ms -f dockerfiles/Dockerfile.products .
 ```
 
 This will create a docker image called `products_ms`
+
+#### Run `products_ms` as container
+
+```
+docker run --publish 4001:4001 products_ms
+```
+
+## Docker Users
+
+#### Build Users image from dockerfile
+
+```
+docker build -t users_ms -f dockerfiles/Dockerfile.users .
+```
+
+This will create a docker image called `users_ms`
+
+#### Run `products_ms` as container
+
+```
+docker run --publish 4002:4002 users_ms
+```
 
 ### Create Postgres DB container (instead of hosting on local machine)
 
@@ -41,8 +65,8 @@ postgres_DB = e_commerce
   - ~~products~~
   - cart
   - orders
-  - users
+  - ~~users~~
 - Kafka Event Bus(so everything can run more asynchronusly)
-- Dockerize microservices
+- Dockerize microservices (in progress)
 - Kubernetes???
 - Sensu monitoring for each service
