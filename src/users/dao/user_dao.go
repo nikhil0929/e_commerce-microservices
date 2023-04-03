@@ -19,6 +19,7 @@ func NewUserDao(connection *postgres.DB) *UserDao {
 func (us *UserDao) Query(queryParams map[string][]string) ([]models.User, bool) {
 	var RecievedUsers []models.User
 	rp, err := us.connection.QueryRecordWithMapConditions(&models.User{}, RecievedUsers, queryParams)
+	//log.Println("rp: ", rp, "err: ", err)
 	RecievedUsers = rp.([]models.User)
 	return RecievedUsers, err
 }

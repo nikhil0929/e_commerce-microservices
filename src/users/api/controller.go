@@ -86,7 +86,7 @@ func (a *api) UserSignIn(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"token": token}) // Return token to client
 			}
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password"})
 		}
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user credentials"})
