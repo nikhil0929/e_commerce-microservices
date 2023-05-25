@@ -11,7 +11,6 @@ import (
 
 	"e_commerce-microservices/utils" // THIS IS THE CORRECT WAY TO IMPORT PACKAGES
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -42,13 +41,12 @@ func ConnectDatabase() *gorm.DB {
 	return db
 }
 
-
 func loadConfig() map[string]string {
 	config := make(map[string]string)
-	err := godotenv.Load("./src/products/.env")
-	if err != nil {
-		log.Fatalf("Some error occured. Err: %s", err)
-	}
+	// err := godotenv.Load("./src/products/.env")
+	// if err != nil {
+	// 	log.Fatalf("Some error occured. Err: %s", err)
+	// }
 
 	config["Host"] = os.Getenv("HOST")
 	config["Db_username"] = os.Getenv("DB_USERNAME")
@@ -93,7 +91,7 @@ func (pdb *DB) QueryRecordWithMapConditions(modelObject interface{}, outputObjec
 }
 
 // Updates the given model object in the database with new fields specified as a map/struct
-func (pdb *DB) UpdateRecord(modelObject interface{}, conditions interface{}, newVals interface{}) bool{
+func (pdb *DB) UpdateRecord(modelObject interface{}, conditions interface{}, newVals interface{}) bool {
 	filterQuerable := pdb.connection.Model(&modelObject)
 	newQuery := utils.CreateConditionClause(filterQuerable, conditions.(map[string][]string))
 	result := newQuery.Updates(newVals)
@@ -106,7 +104,7 @@ func (pdb *DB) UpdateRecord(modelObject interface{}, conditions interface{}, new
 }
 
 // Deletes the given model object from the database with the given conditions specified as a map
-func (pdb *DB) DeleteRecord(modelObject interface{}, conditions interface{}) bool{
+func (pdb *DB) DeleteRecord(modelObject interface{}, conditions interface{}) bool {
 	filterQuerable := pdb.connection.Model(&modelObject)
 	newQuery := utils.CreateConditionClause(filterQuerable, conditions.(map[string][]string))
 	result := newQuery.Delete(&modelObject)

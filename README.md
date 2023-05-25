@@ -49,6 +49,28 @@ postgres_user = postgres
 postgres_password = A\*\*\*\*9!
 postgres_DB = e_commerce
 
+## Notes:
+
+When you run pgAdmin4 and PostgreSQL in separate Docker containers and on the same machine, they are essentially on two different "machines" from a networking perspective, even though they're both technically on your Mac.
+
+The term localhost inside the pgAdmin4 container refers to the pgAdmin4 container itself, not your Mac host where the PostgreSQL container is running. This is why you're unable to connect to the PostgreSQL server.
+
+The easiest way to resolve this issue is by using Docker's built-in networking capabilities. By default, Docker provides a special network named bridge, and all containers run in this network unless specified otherwise.
+
+When containers are in the same network, they can reach each other by the container name. So you should be able to use cart_postgres as the hostname to reach your PostgreSQL server from within the pgAdmin4 container.
+
+I created my own network using
+
+```bash
+docker network create e_commerce_microservices
+```
+
+and then i ran the cart_postgres container using the following where i specify the network name:
+
+```bash
+docker run -d --network=e_commerce_microservices --name cart_postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=Arnik0929! -e POSTGRES_DB=cart_postgres -p 5434:5432 postgres:latest
+```
+
 ## TODOs
 
 - Implement other services

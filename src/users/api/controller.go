@@ -59,6 +59,7 @@ func (a *api) UserSignUp(c *gin.Context) {
 
 }
 
+
 // Endpoint: /login
 /*
 	POST: (email, password)

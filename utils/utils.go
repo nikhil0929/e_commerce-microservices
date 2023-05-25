@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -88,4 +89,12 @@ func GenerateHashPassword(password string) string {
 		fmt.Println("Error hashing password")
 	}
 	return string(hashedPass)
+}
+
+func LoadEnv(path string) {
+	// "./src/products/.env"
+	err := godotenv.Load(path)
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
 }

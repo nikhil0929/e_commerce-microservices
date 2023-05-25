@@ -7,10 +7,13 @@ import (
 	"e_commerce-microservices/src/products/models"
 	"e_commerce-microservices/src/products/router"
 	"e_commerce-microservices/src/products/services"
+	"e_commerce-microservices/utils"
 	"log"
 )
 
 func main() {
+
+	utils.LoadEnv("./src/products/.env")
 
 	// Declare Postgres instance
 	product_psql := postgres.NewDBConnection_postgres()
