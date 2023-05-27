@@ -5,17 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 type DAO interface {
-	Query(map[string][]string) ([]models.Cart, bool)
-	CreateCart(models.Cart) bool
-	CreateCartItem(models.CartItem) bool
-	Update(map[string][]string, models.Cart) bool
-	Delete(map[string][]string) bool
+	RunMigrations(interface{})
+	QueryRecords(interface{}, map[string]interface{}) error
+	QueryWithAssociation(interface{}, map[string]interface{}, string) error
+	CreateRecord(interface{}) error
+	UpdateRecord(interface{}, map[string]interface{}) error
+	DeleteRecord(interface{}, map[string]interface{}) error
 }
 
 type Service struct {
@@ -30,21 +30,13 @@ func NewCartService(dao DAO) *Service {
 
 // Cart Service methods
 
-func (s *Service) GetCart(queryParams map[string][]string) ([]models.Cart, bool) {
-	carts, err := s.cartDao.Query(queryParams)
-	return carts, err
+func (s *Service) GetCart(queryParams map[string][]string) ([]models.Cart, error) {
+
 }
 
 // Creates an empty cart for the user with the users first item. This method should not really be called by the client. It should be called by the 'InsertCartItem' method
-func (s *Service) CreateCart(UserID uint, cartItem models.CartItem) bool {
-	cart := models.Cart{
-		UserID: UserID,
-		CartItems: []models.CartItem{
-			cartItem,
-		},
-	}
-	isValid := s.cartDao.CreateCart(cart)
-	return isValid
+func (s *Service) CreateCart(UserID uint, cartItem models.CartItem) error {
+
 }
 
 // This function calls the 'GetProduct' function from the product microservice to get the product object using the product ID
@@ -53,93 +45,13 @@ func (s *Service) CreateCart(UserID uint, cartItem models.CartItem) bool {
 // if the cart for the user exists, it will check if the product already exists in the cart
 // if the product exists in the cart, it will update the quantity of the product in the cart
 // if the product does not exist in the cart, it will add the product to the cart by first creating a new cart item and then adding it to the cart
-func (s *Service) InsertCartItem(ProductID uint, UserID uint, Quantity uint) bool {
-	// Check if cart exists for user
-	carts, err := s.cartDao.Query(map[string][]string{"User_ID": {strconv.Itoa(int(UserID))}})
+func (s *Service) InsertCartItem(ProductID uint, UserID uint, Quantity uint) error {
 
-	if err == false {
-		log.Println("InsertCartItem: Error querying cart - ", err)
-		return false
-	}
-
-	cartItem, isValid := CreateCartItem(ProductID, UserID, Quantity)
-
-	if isValid == false {
-		log.Println("InsertCartItem: Error creating cart item - ", err)
-		return false
-	}
-
-	if len(carts) == 0 {
-		// Create cart for user
-
-		isValid = s.CreateCart(UserID, cartItem)
-
-		if isValid == false {
-			log.Println("InsertCartItem: Error creating cart - ", err)
-			return false
-		}
-
-		return true
-	} else {
-		// Check if product already exists in cart
-
-		cart := carts[0]
-
-		for _, item := range cart.CartItems {
-			if item.ProductID == ProductID {
-				// Update quantity of product in cart
-
-				isValid = s.UpdateCartItem(item.ID)
-
-				if isValid == false {
-					log.Println("InsertCartItem: Error updating cart item - ", err)
-					return false
-				}
-
-				return true
-			}
-		}
-
-		// Create a new cart item and add it to the cart
-
-		isValid = s.cartDao.CreateCartItem(cartItem)
-
-		if isValid == false {
-			log.Println("InsertCartItem: Error creating cart item - ", err)
-			return false
-		}
-
-		return true
-
-	}
 }
 
 // This function calls the 'GetProduct' function from the product microservice to get the product object using the product ID and constructs a cart item object
-func CreateCartItem(ProductID uint, UserID uint, Quantity uint) (models.CartItem, bool) {
-	products, err := GetProduct(ProductID)
+func CreateCartItem(ProductID uint, UserID uint, Quantity uint) (models.CartItem, error) {
 
-	if err != nil {
-		log.Println("CreateCartItem: Error getting product - ", err)
-		return models.CartItem{}, false
-	}
-
-	product := (*products)[0]
-
-	// type CartItem struct {
-	// 	CartID    uint `gorm:"primary_key"`
-	// 	ProductID uint
-	// 	TotalPrice     float64
-	// 	Quantity  int
-	// }
-
-	totalPrice := product.Price * float64(Quantity)
-	cartItem := models.CartItem{
-		ProductID:  product.ID,
-		TotalPrice: totalPrice,
-		Quantity:   int(Quantity),
-	}
-
-	return cartItem, true
 }
 
 // Deletes an CartItem from the cart

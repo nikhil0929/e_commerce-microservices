@@ -58,9 +58,9 @@ func loadConfig() map[string]string {
 
 }
 
-func (pdb *DB) RunMigrations(model interface{}) {
-	utils.MigrateModel(pdb.connection, model)
-}
+// DEPRECATED
+// THE FOLLOWING FUNCTIONS ARE DEPRECATED AND WILL BE REMOVED IN THE FUTURE
+// The DAOs will be responsible for all database operations
 
 // Creates new record instance in the database from the given model object
 func (pdb *DB) CreateRecord(object interface{}) bool {
