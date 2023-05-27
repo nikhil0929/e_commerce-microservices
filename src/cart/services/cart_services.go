@@ -30,12 +30,31 @@ func NewCartService(dao DAO) *Service {
 
 // Cart Service methods
 
-func (s *Service) GetCart(queryParams map[string][]string) ([]models.Cart, error) {
+func (s *Service) GetCart(queryParams map[string]interface{}) ([]models.Cart, error) {
+	carts := &[]models.Cart{}
+	err := s.cartDao.QueryWithAssociation(carts, queryParams, "CartItems")
+	if err != nil {
+		return nil, err
+	}
+	return *carts, nil
 
 }
 
 // Creates an empty cart for the user with the users first item. This method should not really be called by the client. It should be called by the 'InsertCartItem' method
 func (s *Service) CreateCart(UserID uint, cartItem models.CartItem) error {
+	cart := &models.Cart{
+		UserID: UserID,
+	}
+	err := s.cartDao.CreateRecord(cart)
+	if err != nil {
+		return err
+	}
+	cartItem.CartID = cart.ID
+	err = s.cartDao.CreateRecord(&cartItem)
+	if err != nil {
+		return err
+	}
+	return nil
 
 }
 
@@ -47,21 +66,82 @@ func (s *Service) CreateCart(UserID uint, cartItem models.CartItem) error {
 // if the product does not exist in the cart, it will add the product to the cart by first creating a new cart item and then adding it to the cart
 func (s *Service) InsertCartItem(ProductID uint, UserID uint, Quantity uint) error {
 
+	// check if the cart for the user exists
+	carts, err := s.GetCart(map[string]interface{}{"user_id": UserID})
+	if err != nil {
+		return err
+	}
+
+	// if the cart for the user does not exist, it will create a new cart for the user
+	if len(carts) == 0 {
+		newCartItem, err := CreateCartItem(ProductID, Quantity)
+		if err != nil {
+			return err
+		}
+		err = s.CreateCart(UserID, newCartItem)
+	} else {
+		// if the cart for the user exists, it will check if the product already exists in the cart
+		productExists := false
+		cart := carts[0]
+		for _, cartItem := range cart.CartItems {
+			if cartItem.ProductID == ProductID {
+				// if the product exists in the cart, it will update the quantity of the product in the cart
+				cartItem.Quantity += Quantity
+				err = s.cartDao.UpdateRecord(&cartItem, map[string]interface{}{"quantity": cartItem.Quantity})
+				if err != nil {
+					return err
+				}
+				productExists = true
+				break
+			}
+		}
+
+		// if the product does not exist in the cart, it will add the product to the cart by first creating a new cart item and then adding it to the cart
+		if !productExists {
+			newCartItem, err := CreateCartItem(ProductID, Quantity)
+			if err != nil {
+				return err
+			}
+			newCartItem.CartID = cart.ID
+			err = s.cartDao.CreateRecord(&newCartItem)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+
 }
 
 // This function calls the 'GetProduct' function from the product microservice to get the product object using the product ID and constructs a cart item object
-func CreateCartItem(ProductID uint, UserID uint, Quantity uint) (models.CartItem, error) {
+func CreateCartItem(ProductID uint, Quantity uint) (models.CartItem, error) {
+	products, err := GetProduct(ProductID)
+	if err != nil {
+		return models.CartItem{}, err
+	}
+	product := (*products)[0]
+
+	totalPrice := product.Price * float64(Quantity)
+
+	cartItem := models.CartItem{
+		ProductID:  ProductID,
+		TotalPrice: totalPrice,
+		Quantity:   Quantity,
+	}
+	return cartItem, nil
 
 }
 
 // Deletes an CartItem from the cart
-func (s *Service) DeleteCartItem(CartID uint, CartItemID uint) bool {
-	return true
+func (s *Service) DeleteCartItem(CartID uint, CartItemID uint) error {
+	return nil
 }
 
 // Updates an CartItem in the cart
-func (s *Service) UpdateCartItem(CartItemID uint) bool {
-	return true
+func (s *Service) UpdateCartItem(CartItemID uint) error {
+	return nil
 }
 
 // calls the 'GetProduct' function from the product microservice to get the product object using the product ID

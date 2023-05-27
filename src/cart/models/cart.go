@@ -14,7 +14,7 @@ type CartItem struct {
 	CartID     uint
 	ProductID  uint
 	TotalPrice float64
-	Quantity   int
+	Quantity   uint
 }
 
 // Cart represents the cart model with multiple cart items
